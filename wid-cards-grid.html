@@ -1,0 +1,306 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
+<link rel="import" href="../wid-card/wid-card.html">
+
+<!--
+This element displays a grid of material design cards.
+Each card could have an importance. Each row of this component has a `weightPerRow`.
+This means that a row could have several cards. But the sum of the cards importances
+will always be below the `weigthPerRow` property.
+
+Example:
+
+    <wid-cards-grid 
+      cards="[[cards]]"
+      on-card-tap="_onCardTap"
+      weightPerRow="7">
+    </wid-cards-grid>
+    
+@group Wid
+@element wid-cards-grid
+@demo demo/index.html
+-->
+<dom-module id="wid-cards-grid">
+
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    wid-card iron-icon {
+      width: 64px;
+      height: 64px;
+      padding: 10px;
+    }
+
+    wid-card iron-image {
+      width: 100%;
+      height: 100%;
+    }
+
+    wid-card .tile-content h4, wid-card .tile-content p {
+      margin: 0;
+      text-align: center;
+    }
+
+  </style>
+
+  <template>
+
+    <iron-media-query query="(max-width: 639px)" query-matches="{{_isMobile}}"></iron-media-query>
+
+    <div class="layout vertical">
+
+      <template is="dom-repeat" items="[[_gridLayout]]" as="row">
+
+        <div class="layout horizontal flex-auto wrap">
+
+          <template is="dom-repeat" items="[[row]]" as="card">
+
+            <wid-card
+              class$="{{_computeCardClasses(card.importance)}}"
+              route-url="[[card.routeUrl]]">
+
+              <iron-image class="flex-auto" src="[[card.image]]" sizing="cover"></iron-image>
+              <div class="layout horizontal center-center">
+
+                <iron-icon src="[[card.icon]]"></iron-icon>
+                <div class="layout vertical center-center tile-content">
+                  <h4>[[card.name]]</h4>
+                  <p>[[card.category]]</p>
+                </div>
+
+              </div>
+
+            </wid-card>
+
+          </template>
+
+        </div>
+
+      </template>
+
+    </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'wid-cards-grid',
+
+    behaviors: [
+      Polymer.NeonSharedElementAnimatableBehavior
+    ],
+
+    properties: {
+      /**
+       * The current selected card.
+       * @type {Object}
+       */
+      currentCard: {
+        type: Object,
+        notify: true
+      },
+
+      /**
+       * Whether hidding the card when tapped.
+       * @type {Boolean}
+       */
+      hideCardOnTap: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * Whether calling an animation on the `currentCard` when leaving this component.
+       * @type {Boolean}
+       */
+      exitCardAnimatable: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The animation to call on the currentCard on exit.
+       * @type {String}
+       */
+      cardAnimatableType: {
+        type: String,
+        value: 'fade-out'
+      },
+
+      /**
+       * The cards to display in the grid.
+       * @type {[Object]}
+       */
+      cards: {
+        type: Array,
+        observer: '_cardsChanged'
+      },
+
+      /**
+       * The private model of the grid.
+       * @type {Object}
+       */
+      _gridLayout: {
+        type: Object
+      },
+
+      /**
+       * Each card has a score.
+       * One row must have the sum of its card scores below this value.
+       * @type {Number}
+       */
+      weightPerRow: {
+        type: Number,
+        value: 7
+      },
+
+      /**
+       * Animation configuration. Cf. `neon-animation`
+       * @type {AnimationConfig}
+       */
+      animationConfig: {
+        type: Object,
+        value: function() {
+          return {
+            'exit': [{
+              name: 'ripple-animation',
+              id: 'ripple',
+              fromPage: this
+            }, {
+              name: 'hero-animation',
+              id: 'hero',
+              fromPage: this
+            }]
+          };
+        }
+      }
+    },
+
+    listeners: {
+      'card-tap': '_onProjectTileTap'
+    },
+
+    /**
+     * This method place a card in a row that have enough space
+     * to receive the card or in a new row.
+     * This algorithm is greedy.
+     * @param  {[Row]} rows The rows of the grid layout
+     * @param  {Card} card A card to be palced.
+     * @return {[Row]}      The new rows.
+     */
+    _putCardInRow: function (rows, card) {
+      var cardInserted = false,
+          i, ii,
+          importance = ((card.importance) ? card.importance : 1); //a card has at least an importance of 1.
+
+      for (i = 0, ii = rows.length ; i < ii; i++) {
+
+        if (rows[i].remainingWeight >= importance) {
+          rows[i].cards.push(card);
+          rows[i].remainingWeight -= importance;
+          cardInserted = true;
+          break;
+        }
+
+      }
+      if (!cardInserted) {
+        rows[rows.length] = {
+          cards: [card],
+          remainingWeight: this.weightPerRow - importance
+        };
+        rows.length++;
+      }
+
+      return rows;
+    },
+
+    /**
+     * When the `cards` property changes. This method is called.
+     * Recreate the grid layout based on the cards scores.
+     * @return {GridLayout} The grid layout
+     */
+    _cardsChanged: function () {
+
+      var rows = {
+            length: 0
+          }, //temp map containing the gridLayout
+          rowsArray = [], //definitive array containing the gridLayout
+          temp,
+          card,
+          i, ii, j, jj, k, kk, row;
+
+      //first we create the temporary map containing the layout
+      for (i = 0, ii = this.cards.length; i < ii; i++) {
+
+        card = this.cards[i];
+        this._putCardInRow(rows, card);
+
+      }
+      //then we convert this map into an array
+      for (j = 0, jj = rows.length; j < jj; j++) {
+        rowsArray.push(rows[j].cards);
+      }
+      this._gridLayout = rowsArray;
+      return this._gridLayout;
+
+    },
+
+    /**
+     * This method compute the card CSS classes.
+     * Basically, it adjust the flex class accroding to the card importance.
+     * @param  {Number} importance Card importance
+     * @return {String}            The CSS classes
+     */
+    _computeCardClasses: function(importance) {
+      var value = 'auto';
+      if (importance && !this._isMobile) {
+        value = importance;
+      }
+      return 'layout vertical flex-' + value;
+    },
+
+    /**
+     * Update the exit animation.
+     * This method is usefull to call a animation method on the selected card.
+     * @param  {Card} card The card on which we call an animation.
+     */
+    _updateExitAnimation: function (card, useExitAnimation) {
+      this.animationConfig.exit = [this.animationConfig.exit[0], this.animationConfig.exit[1]];
+
+      if (useExitAnimation) {
+        this.animationConfig.exit.concat({
+          animatable: card,
+          type: this.cardAnimatableType
+        });
+      }
+    },
+
+    /**
+     * Called on click on a card.
+     * @param  {CustomEvent} e The event.
+     */
+    _onProjectTileTap: function (e) {
+
+      this.currentProject = e.target;
+      this.sharedElements = {
+        'hero': e.target,
+        'ripple': e.target
+      };
+
+      if (this.hideCardOnTap) {
+        this.currentProject.hide();
+      }
+      
+      this._updateExitAnimation(e.target, this.exitCardAnimatable);
+    }
+  });
+</script>
