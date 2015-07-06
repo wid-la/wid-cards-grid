@@ -14,12 +14,12 @@ will always be below the `weigthPerRow` property.
 
 Example:
 
-    <wid-cards-grid 
+    <wid-cards-grid
       cards="[[cards]]"
       on-card-tap="_onCardTap"
       weightPerRow="7">
     </wid-cards-grid>
-    
+
 @group Wid
 @element wid-cards-grid
 @demo demo/index.html
@@ -107,15 +107,6 @@ Example:
       currentCard: {
         type: Object,
         notify: true
-      },
-
-      /**
-       * Whether hidding the card when tapped.
-       * @type {Boolean}
-       */
-      hideCardOnTap: {
-        type: Boolean,
-        value: false
       },
 
       /**
@@ -234,9 +225,8 @@ Example:
             length: 0
           }, //temp map containing the gridLayout
           rowsArray = [], //definitive array containing the gridLayout
-          temp,
           card,
-          i, ii, j, jj, k, kk, row;
+          i, ii, j, jj;
 
       //first we create the temporary map containing the layout
       for (i = 0, ii = this.cards.length; i < ii; i++) {
@@ -290,16 +280,12 @@ Example:
      */
     _onProjectTileTap: function (e) {
 
-      this.currentProject = e.target;
+      this.currentCard = e.target;
       this.sharedElements = {
         'hero': e.target,
         'ripple': e.target
       };
 
-      if (this.hideCardOnTap) {
-        this.currentProject.hide();
-      }
-      
       this._updateExitAnimation(e.target, this.exitCardAnimatable);
     }
   });
