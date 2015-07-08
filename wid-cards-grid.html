@@ -63,7 +63,7 @@ Example:
           <template is="dom-repeat" items="[[row]]" as="card">
 
             <wid-card
-              class$="{{_computeCardClasses(card.importance)}}"
+              class$="{{_computeCardClasses(card.importance, _isMobile)}}"
               route-url="[[card.routeUrl]]">
 
               <iron-image class="flex-auto" src="[[card.image]]" sizing="cover"></iron-image>
@@ -248,11 +248,12 @@ Example:
      * This method compute the card CSS classes.
      * Basically, it adjust the flex class accroding to the card importance.
      * @param  {Number} importance Card importance
+     * @param  {Boolean} isMobile Whether the user is on mobile
      * @return {String}            The CSS classes
      */
-    _computeCardClasses: function(importance) {
+    _computeCardClasses: function(importance, isMobile) {
       var value = 'auto';
-      if (importance && !this._isMobile) {
+      if (importance && !isMobile) {
         value = importance;
       }
       return 'layout vertical flex-' + value;
