@@ -2,18 +2,20 @@
   "name": "wid-cards-grid",
   "version": "1.0.3",
   "authors": [
-    "Anonymous <anonymous@example.com>"
+    "Thomas Hourlier <hourliert@gmail.com>"
   ],
   "description": "This element displays a grid of material design cards.",
   "keywords": [
     "web-component",
     "web-components",
     "polymer",
-    "seed"
+    "card",
+    "grid",
+    "flex"
   ],
   "main": "wid-cards-grid.html",
-  "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/wid-cards-grid/",
+  "license": "MIT",
+  "homepage": "https://github.com/wid-la/wid-cards-grid",
   "ignore": [
     "/.*",
     "/test/",
@@ -31,5 +33,11 @@
     "polyserve": "^0.4.0",
     "ps-node": "0.0.4",
     "web-component-tester": "^3.1.4"
+  },
+  "dependencies": {
+    "gulp-bump": "^0.3.1",
+    "gulp-filter": "^2.0.2",
+    "gulp-git": "^1.2.4",
+    "gulp-tag-version": "^1.2.1"
   }
 }
