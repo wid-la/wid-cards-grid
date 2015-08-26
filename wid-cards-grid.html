@@ -48,6 +48,14 @@ Example:
       text-align: center;
     }
 
+    wid-card [title] {
+      color: var(--wid-cards-grid-title-color, black);
+    }
+
+    wid-card [category] {
+      color: var(--wid-cards-grid-category-color, #C2C2C2);
+    }
+
     :host > div {
       background-color: var(--wid-cards-grid-background-color, white);
     }
@@ -75,8 +83,8 @@ Example:
 
                 <iron-icon src="[[card.icon]]"></iron-icon>
                 <div class="layout vertical center-center tile-content">
-                  <h4>[[card.name]]</h4>
-                  <p>[[card.category]]</p>
+                  <h4 title>[[card.name]]</h4>
+                  <p category>[[card.category]]</p>
                 </div>
 
               </div>
