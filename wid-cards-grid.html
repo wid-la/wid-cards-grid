@@ -32,6 +32,10 @@ Example:
       display: block;
     }
 
+    wid-card .caption {
+      min-height: 64px;
+    }
+
     wid-card iron-icon {
       width: 64px;
       height: 64px;
@@ -78,13 +82,13 @@ Example:
               class$="{{_computeCardClasses(card.importance, _isMobile)}}"
               data-plain="[[card]]">
 
-              <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover"></iron-image>
-              <div class="layout horizontal center-center">
+              <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
+              <div class="caption layout horizontal center-center">
 
-                <iron-icon src="[[card.tileIcon]]"></iron-icon>
+                <iron-icon src="[[card.tileIcon]]" hidden$="[[!card.tileIcon]]"></iron-icon>
                 <div class="layout vertical center-center tile-content">
-                  <h4 title>[[card.name]]</h4>
-                  <p category>[[card.category]]</p>
+                  <h4 title hidden$="[[!card.name]]">[[card.name]]</h4>
+                  <p category hidden$="[[!card.category]]">[[card.category]]</p>
                 </div>
 
               </div>
