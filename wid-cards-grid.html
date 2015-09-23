@@ -85,7 +85,7 @@ Example:
 
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
-            <div id$="[[_computeInsertionId(i, j)]]"></div>
+            <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.importance, _isMobile)}}"></div>
 
           </template>
 
@@ -181,6 +181,13 @@ Example:
             }]
           };
         }
+      },
+
+      _cardIndexes: {
+        type: Object,
+        value: function() {
+          return [];
+        }
       }
     },
 
@@ -197,13 +204,22 @@ Example:
 
     _computeInsertionId: function(i, j) {
       console.log('toInsert', i, j);
-      return 'test'+ j;
+      return 'test' + i + '_' + j;
     },
 
     _handleDomChange: function () {
 
-      for (var i = 0; i < 4; i++){
-        Polymer.dom(this.root).querySelector('#test' + i).appendChild(this._cards[i]);
+      if (this._cardIndexes.length !== this._cards.length) {
+        throw new Error('Size differs');
+      }
+
+      for (var i = 0; i < this._cardIndexes.length; i++){
+        var pos = this._cardIndexes[i];
+        try {
+          Polymer.dom(this.root).querySelector('#test' + pos.x + '_' + pos.y).appendChild(pos.card);
+        } catch (e) {
+
+        }
       }
 
     },
@@ -220,12 +236,14 @@ Example:
     _putCardInRow: function (rows, card) {
       var cardInserted = false,
           i, ii,
+          x, y
           importance = ((card.importance) ? card.importance : 1); //a card has at least an importance of 1.
 
       for (i = 0, ii = rows.length ; i < ii; i++) {
 
         if (rows[i].remainingWeight >= importance) {
-          rows[i].cards.push(card);
+          x = i;
+          y = rows[i].cards.push(card) - 1;
           rows[i].remainingWeight -= importance;
           cardInserted = true;
           break;
@@ -238,9 +256,11 @@ Example:
           remainingWeight: this.weightPerRow - importance
         };
         rows.length++;
+        x = rows.length - 1;
+        y = 0;
       }
 
-      return rows;
+      return {x: x, y: y};
     },
 
     /**
@@ -255,13 +275,17 @@ Example:
           }, //temp map containing the gridLayout
           rowsArray = [], //definitive array containing the gridLayout
           card,
+          pos,
           i, ii, j, jj;
 
       //first we create the temporary map containing the layout
       for (i = 0, ii = this._cards.length; i < ii; i++) {
 
         card = this._cards[i];
-        this._putCardInRow(rows, card);
+        pos = this._putCardInRow(rows, card);
+        pos.card = card;
+
+        this._cardIndexes.push(pos);
 
       }
 
@@ -270,6 +294,7 @@ Example:
         rowsArray.push(rows[j].cards);
       }
       this._gridLayout = rowsArray;
+      console.log(this._cardIndexes);
       return this._gridLayout;
 
     },

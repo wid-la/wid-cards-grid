@@ -27,7 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <template is="dom-repeat" items="[[cards]]" as="card">
 
-          <wid-card card>
+          <wid-card card importance="[[card.importance]]">
 
             <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
             <div class="caption layout horizontal center-center">
