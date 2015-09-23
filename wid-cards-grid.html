@@ -4,7 +4,6 @@
 <link rel="import" href="../iron-media-query/iron-media-query.html">
 <link rel="import" href="../neon-animation/neon-animation.html">
 <link rel="import" href="../neon-animation/neon-animations.html">
-<link rel="import" href="../wid-card/wid-card.html">
 
 <!--
 This element displays a grid of material design cards.
@@ -30,6 +29,10 @@ Example:
 
     :host {
       display: block;
+    }
+
+    #cards-container {
+      display: none;
     }
 
     wid-card .caption {
@@ -68,32 +71,21 @@ Example:
 
   <template>
 
+    <div id="cards-container">
+      <content id="cards" select="[card]"></content>
+    </div>
+
     <iron-media-query query="(max-width: 639px)" query-matches="{{_isMobile}}"></iron-media-query>
 
     <div class="layout vertical">
 
-      <template is="dom-repeat" items="[[_gridLayout]]" as="row">
+      <template is="dom-repeat" items="[[_gridLayout]]" as="row" index-as="i">
 
         <div class="layout horizontal flex-auto wrap">
 
-          <template is="dom-repeat" items="[[row]]" as="card">
+          <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
-            <wid-card
-              class$="{{_computeCardClasses(card.importance, _isMobile)}}"
-              data-plain="[[card]]">
-
-              <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
-              <div class="caption layout horizontal center-center">
-
-                <iron-icon src="[[card.tileIcon]]" hidden$="[[!card.tileIcon]]"></iron-icon>
-                <div class="layout vertical center-center tile-content">
-                  <h4 title hidden$="[[!card.name]]">[[card.name]]</h4>
-                  <p category hidden$="[[!card.category]]">[[card.category]]</p>
-                </div>
-
-              </div>
-
-            </wid-card>
+            <div id$="[[_computeInsertionId(i, j)]]"></div>
 
           </template>
 
@@ -147,7 +139,7 @@ Example:
        * The cards to display in the grid.
        * @type {[Object]}
        */
-      cards: {
+      _cards: {
         type: Array,
         observer: '_cardsChanged'
       },
@@ -193,8 +185,29 @@ Example:
     },
 
     listeners: {
-      'card-tap': '_onProjectTileTap'
+      'card-tap': '_onProjectTileTap',
+      'dom-change': '_handleDomChange'
     },
+
+    ready: function () {
+      this.async(function() {
+        this._cards = Polymer.dom(this.$.cards).getDistributedNodes();
+      }, 1);
+    },
+
+    _computeInsertionId: function(i, j) {
+      console.log('toInsert', i, j);
+      return 'test'+ j;
+    },
+
+    _handleDomChange: function () {
+
+      for (var i = 0; i < 4; i++){
+        Polymer.dom(this.root).querySelector('#test' + i).appendChild(this._cards[i]);
+      }
+
+    },
+
 
     /**
      * This method place a card in a row that have enough space
@@ -245,12 +258,13 @@ Example:
           i, ii, j, jj;
 
       //first we create the temporary map containing the layout
-      for (i = 0, ii = this.cards.length; i < ii; i++) {
+      for (i = 0, ii = this._cards.length; i < ii; i++) {
 
-        card = this.cards[i];
+        card = this._cards[i];
         this._putCardInRow(rows, card);
 
       }
+
       //then we convert this map into an array
       for (j = 0, jj = rows.length; j < jj; j++) {
         rowsArray.push(rows[j].cards);
