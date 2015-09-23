@@ -21,9 +21,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <p>An example of <code>&lt;wid-cards-grid&gt;</code>:</p>
     <template is="dom-bind" id="app">
 
-      <wid-cards-grid 
-        cards="[[cards]]"
-        on-card-tap="_onCardTap">
+      <wid-cards-grid on-card-tap="_onCardTap">
+
+        <template is="dom-repeat" items="[[cards]]" as="card">
+
+          <wid-card data-plain="[[card]]">
+
+            <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
+            <div class="caption layout horizontal center-center">
+
+              <iron-icon src="[[card.tileIcon]]" hidden$="[[!card.tileIcon]]"></iron-icon>
+              <div class="layout vertical center-center tile-content">
+                <h4 title hidden$="[[!card.name]]">[[card.name]]</h4>
+                <p category hidden$="[[!card.category]]">[[card.category]]</p>
+              </div>
+
+            </div>
+
+          </wid-card>
+
+        </template>
+
       </wid-cards-grid>
 
     </template>
@@ -40,7 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           name: 'Archer',
           category: 'Custom made application',
           icon: 'http://lorempixel.com/g/400/200',
-          image: 'http://lorempixel.com/400/200',
+          tileImage: 'http://lorempixel.com/400/200',
           importance: 3,
           routeUrl: '/projects/archer',
           routeName: 'archer'
@@ -49,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           name: 'VersaTile',
           category: 'Custom made application',
           icon: 'http://lorempixel.com/g/400/200',
-          image: 'http://lorempixel.com/400/200',
+          tileImage: 'http://lorempixel.com/400/200',
           importance: 2,
           routeUrl: '/projects/versatile',
           routeName: 'versatile'
@@ -58,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           name: 'Idiomizer',
           category: 'Custom made application',
           icon: 'http://lorempixel.com/g/400/200',
-          image: 'http://lorempixel.com/400/200',
+          tileImage: 'http://lorempixel.com/400/200',
           importance: 2,
           routeUrl: '/projects/idiomizer',
           routeName: 'idiomizer'
@@ -67,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           name: 'Idiomizer',
           category: 'Custom made application',
           icon: 'http://lorempixel.com/g/400/200',
-          image: 'http://lorempixel.com/400/200',
+          tileImage: 'http://lorempixel.com/400/200',
           importance: 2,
           routeUrl: '/projects/idiomizer',
           routeName: 'idiomizer'
