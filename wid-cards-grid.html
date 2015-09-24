@@ -7,16 +7,34 @@
 
 <!--
 This element displays a grid of material design cards.
-Each card could have an importance. Each row of this component has a `weightPerRow`.
+Each card (whatever element) **MUST** implement the `wid-card-weight-behavior`. 
+Each row of this component has a `weightPerRow`.
 This means that a row could have several cards. But the sum of the cards importances
 will always be below the `weigthPerRow` property.
 
 Example:
 
-    <wid-cards-grid
-      cards="[[cards]]"
-      on-card-tap="_onCardTap"
-      weightPerRow="7">
+    <wid-cards-grid on-card-tap="_onCardTap">
+
+      <template is="dom-repeat" items="[[cards]]" as="card">
+
+        <wid-card card importance="[[card.importance]]">
+
+          <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
+          <div class="caption layout horizontal center-center">
+
+            <iron-icon src="[[card.tileIcon]]" hidden$="[[!card.tileIcon]]"></iron-icon>
+            <div class="layout vertical center-center tile-content">
+              <h4 title hidden$="[[!card.name]]">[[card.name]]</h4>
+              <p category hidden$="[[!card.category]]">[[card.category]]</p>
+            </div>
+
+          </div>
+
+        </wid-card>
+
+      </template>
+
     </wid-cards-grid>
 
 @group Wid
