@@ -7,7 +7,7 @@
 
 <!--
 This element displays a grid of material design cards.
-Each card (whatever element) **MUST** implement the `wid-card-weight-behavior`. 
+Each card (whatever element) **MUST** implement the `wid-card-weight-behavior`.
 Each row of this component has a `weightPerRow`.
 This means that a row could have several cards. But the sum of the cards importances
 will always be below the `weigthPerRow` property.
@@ -104,7 +104,7 @@ Example:
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
             <!-- here we'll be inserted the real card -->
-            <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.importance, _isMobile)}}"></div>
+            <div id$="[[_computeInsertionId(i, j)]]" class$="[[_computeCardClasses(card.importance, _isMobile)]]"></div>
 
           </template>
 
@@ -293,6 +293,7 @@ Example:
             length: 0
           }, //temp map containing the gridLayout
           rowsArray = [], //definitive array containing the gridLayout
+          card,
           i, ii, j, jj;
 
       //first we create the temporary map containing the layout
