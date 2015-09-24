@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-image/iron-image.html">
-<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-media-query/iron-media-query.html">
 <link rel="import" href="../neon-animation/neon-animation.html">
 <link rel="import" href="../neon-animation/neon-animations.html">
@@ -53,38 +52,6 @@ Example:
       display: none;
     }
 
-    wid-card .caption {
-      min-height: 64px;
-    }
-
-    wid-card iron-icon {
-      width: 64px;
-      height: 64px;
-      padding: 10px;
-    }
-
-    wid-card iron-image {
-      width: 100%;
-      height: 100%;
-    }
-
-    wid-card .tile-content h4, wid-card .tile-content p {
-      margin: 0;
-      text-align: center;
-    }
-
-    wid-card [title] {
-      color: var(--wid-cards-grid-title-color, black);
-    }
-
-    wid-card [category] {
-      color: var(--wid-cards-grid-category-color, #C2C2C2);
-    }
-
-    :host > div {
-      background-color: var(--wid-cards-grid-background-color, white);
-    }
-
   </style>
 
   <template>
@@ -104,7 +71,7 @@ Example:
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
             <!-- here we'll be inserted the real card -->
-            <div id$="[[_computeInsertionId(i, j)]]" class$="[[_computeCardClasses(card.importance, _isMobile)]]"></div>
+            <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.importance, _isMobile)}}"></div>
 
           </template>
 
@@ -293,7 +260,6 @@ Example:
             length: 0
           }, //temp map containing the gridLayout
           rowsArray = [], //definitive array containing the gridLayout
-          card,
           i, ii, j, jj;
 
       //first we create the temporary map containing the layout
