@@ -71,20 +71,21 @@ Example:
 
   <template>
 
-    <div id="cards-container">
-      <content id="cards" select="[card]"></content>
-    </div>
-
     <iron-media-query query="(max-width: 639px)" query-matches="{{_isMobile}}"></iron-media-query>
-
+    <div id="cards-container">
+      <content id="cards-placeholder" select="[card]"></content>
+    </div>
+    <!-- first, we display the rows -->
     <div class="layout vertical">
 
       <template is="dom-repeat" items="[[_gridLayout]]" as="row" index-as="i">
 
+        <!-- then, we display the cells (cards) of each row -->
         <div class="layout horizontal flex-auto wrap">
 
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
+            <!-- here we'll be inserted the real card -->
             <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.importance, _isMobile)}}"></div>
 
           </template>
@@ -181,13 +182,6 @@ Example:
             }]
           };
         }
-      },
-
-      _cardIndexes: {
-        type: Object,
-        value: function() {
-          return [];
-        }
       }
     },
 
@@ -196,32 +190,43 @@ Example:
       'dom-change': '_handleDomChange'
     },
 
+    /**
+     * When the component is ready, we fetch the distributed nodes of the content tag.
+     */
     ready: function () {
       this.async(function() {
-        this._cards = Polymer.dom(this.$.cards).getDistributedNodes();
+        this._cards = Polymer.dom(this.$['cards-placeholder']).getDistributedNodes();
       }, 1);
     },
 
+    /**
+     * Compute the insertion point name.
+     * This name will be use as the div id.
+     * @param  {number} i Row position
+     * @param  {number} j Card position
+     * @return {string}   Insertion point name
+     */
     _computeInsertionId: function(i, j) {
-      console.log('toInsert', i, j);
-      return 'test' + i + '_' + j;
+      return 'insertion' + i + '_' + j;
     },
 
+    /**
+     * This method is called whenever a dom-repeat template has finish.
+     * It inserts the real card in the insertion points.
+     */
     _handleDomChange: function () {
 
-      if (this._cardIndexes.length !== this._cards.length) {
-        throw new Error('Size differs');
-      }
+      for (var i = 0 ; i < this._gridLayout.length; i++) {
+        for (var j = 0 ; j < this._gridLayout[i].length; j++) {
 
-      for (var i = 0; i < this._cardIndexes.length; i++){
-        var pos = this._cardIndexes[i];
-        try {
-          Polymer.dom(this.root).querySelector('#test' + pos.x + '_' + pos.y).appendChild(pos.card);
-        } catch (e) {
+          try {
+            Polymer.dom(this.root).querySelector('#insertion' + i + '_' + j).appendChild(this._gridLayout[i][j]);
+          } catch (e) {
+
+          }
 
         }
       }
-
     },
 
 
@@ -229,21 +234,19 @@ Example:
      * This method place a card in a row that have enough space
      * to receive the card or in a new row.
      * This algorithm is greedy.
-     * @param  {[Row]} rows The rows of the grid layout
+     * @param  {[Row[]]} rows The rows of the grid layout
      * @param  {Card} card A card to be palced.
-     * @return {[Row]}      The new rows.
+     * @return {[Row[]]}      The rows of the grid layout
      */
     _putCardInRow: function (rows, card) {
       var cardInserted = false,
           i, ii,
-          x, y
           importance = ((card.importance) ? card.importance : 1); //a card has at least an importance of 1.
 
       for (i = 0, ii = rows.length ; i < ii; i++) {
 
         if (rows[i].remainingWeight >= importance) {
-          x = i;
-          y = rows[i].cards.push(card) - 1;
+          rows[i].cards.push(card);
           rows[i].remainingWeight -= importance;
           cardInserted = true;
           break;
@@ -256,11 +259,9 @@ Example:
           remainingWeight: this.weightPerRow - importance
         };
         rows.length++;
-        x = rows.length - 1;
-        y = 0;
       }
 
-      return {x: x, y: y};
+      return rows;
     },
 
     /**
@@ -274,18 +275,13 @@ Example:
             length: 0
           }, //temp map containing the gridLayout
           rowsArray = [], //definitive array containing the gridLayout
-          card,
-          pos,
           i, ii, j, jj;
 
       //first we create the temporary map containing the layout
       for (i = 0, ii = this._cards.length; i < ii; i++) {
 
         card = this._cards[i];
-        pos = this._putCardInRow(rows, card);
-        pos.card = card;
-
-        this._cardIndexes.push(pos);
+        this._putCardInRow(rows, card);
 
       }
 
@@ -294,7 +290,6 @@ Example:
         rowsArray.push(rows[j].cards);
       }
       this._gridLayout = rowsArray;
-      console.log(this._cardIndexes);
       return this._gridLayout;
 
     },
