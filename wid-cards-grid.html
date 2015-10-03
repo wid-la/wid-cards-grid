@@ -8,7 +8,7 @@
 This element displays a grid of material design cards.
 Each card (whatever element) **MUST** implement the `wid-card-weight-behavior` and has a `[card]` attribute.
 Each row of this component has a `weightPerRow`.
-This means that a row could have several cards. But the sum of the cards importances
+This means that a row could have several cards. But the sum of the cards horizontalWeight
 will always be below the `weigthPerRow` property.
 
 Example:
@@ -17,7 +17,7 @@ Example:
 
       <template is="dom-repeat" items="[[cards]]" as="card">
 
-        <wid-card card importance="[[card.importance]]">
+        <wid-card card horizontalWeight="[[card.horizontalWeight]]">
 
           <iron-image class="flex-auto" src="[[card.tileImage]]" sizing="cover" hidden$="[[!card.tileImage]]"></iron-image>
           <div class="caption layout horizontal center-center">
@@ -79,7 +79,7 @@ Example:
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
             <!-- here we'll be inserted the real card -->
-            <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.importance, _isMobile)}}"></div>
+            <div id$="[[_computeInsertionId(i, j)]]" class$="{{_computeCardClasses(card.horizontalWeight, _isMobile)}}"></div>
 
           </template>
 
@@ -234,13 +234,13 @@ Example:
     _putCardInRow: function (rows, card) {
       var cardInserted = false,
           i, ii,
-          importance = ((card.importance) ? card.importance : 1); //a card has at least an importance of 1.
+          horizontalWeight = ((card.horizontalWeight) ? card.horizontalWeight : 1); //a card has at least an horizontalWeight of 1.
 
       for (i = 0, ii = rows.length ; i < ii; i++) {
 
-        if (rows[i].remainingWeight >= importance) {
+        if (rows[i].remainingWeight >= horizontalWeight) {
           rows[i].cards.push(card);
-          rows[i].remainingWeight -= importance;
+          rows[i].remainingWeight -= horizontalWeight;
           cardInserted = true;
           break;
         }
@@ -249,7 +249,7 @@ Example:
       if (!cardInserted) {
         rows[rows.length] = {
           cards: [card],
-          remainingWeight: this.weightPerRow - importance
+          remainingWeight: this.weightPerRow - horizontalWeight
         };
         rows.length++;
       }
@@ -289,15 +289,15 @@ Example:
 
     /**
      * This method compute the card CSS classes.
-     * Basically, it adjust the flex class accroding to the card importance.
-     * @param  {Number} importance Card importance
+     * Basically, it adjust the flex class accroding to the card horizontalWeight.
+     * @param  {Number} horizontalWeight Card horizontalWeight
      * @param  {Boolean} isMobile Whether the user is on mobile
      * @return {String}            The CSS classes
      */
-    _computeCardClasses: function(importance, isMobile) {
+    _computeCardClasses: function(horizontalWeight, isMobile) {
       var value = 'auto';
-      if (importance && !isMobile) {
-        value = importance;
+      if (horizontalWeight && !isMobile) {
+        value = horizontalWeight;
       }
       return 'card-container layout vertical flex-' + value;
     },
