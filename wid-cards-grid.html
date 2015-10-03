@@ -74,7 +74,7 @@ Example:
       <template is="dom-repeat" items="[[_gridLayout]]" as="row" index-as="i">
 
         <!-- then, we display the cells (cards) of each row -->
-        <div class="layout horizontal flex-auto wrap">
+        <div class$="{{_computeRowClasses(row, _isMobile)}}">
 
           <template is="dom-repeat" items="[[row]]" as="card" index-as="j">
 
@@ -234,7 +234,8 @@ Example:
     _putCardInRow: function (rows, card) {
       var cardInserted = false,
           i, ii,
-          horizontalWeight = ((card.horizontalWeight) ? card.horizontalWeight : 1); //a card has at least an horizontalWeight of 1.
+          horizontalWeight = ((card.horizontalWeight) ? card.horizontalWeight : 1), //a card has at least an horizontalWeight of 1.
+          verticalWeight = ((card.verticalWeight) ? card.verticalWeight : 1); //a card has at least an verticalWeight of 1.
 
       for (i = 0, ii = rows.length ; i < ii; i++) {
 
@@ -249,6 +250,7 @@ Example:
       if (!cardInserted) {
         rows[rows.length] = {
           cards: [card],
+          verticalWeight: verticalWeight,
           remainingWeight: this.weightPerRow - horizontalWeight
         };
         rows.length++;
@@ -300,6 +302,22 @@ Example:
         value = horizontalWeight;
       }
       return 'card-container layout vertical flex-' + value;
+    },
+
+    /**
+     * This method compute the row CSS classes.
+     * Basically, it adjust the flex class accroding to the card verticalWeight.
+     * @param  {Object} Row containing the verticalWeight
+     * @param  {Boolean} isMobile Whether the user is on mobile
+     * @return {String}            The CSS classes
+     */
+    _computeRowClasses: function(row, isMobile) {
+      var verticalWeight = row[0].verticalWeight;
+      var value = '1';
+      if (verticalWeight && !isMobile) {
+        value = verticalWeight;
+      }
+      return 'layout horizontal wrap flex-' + value;
     },
 
     /**
